@@ -1,0 +1,206 @@
+<?php
+/**
+ * @file
+ * This module intends to deal with the EU Directive on Privacy and Electronic
+ * Communications that comes into effect in the UK on 26th May 2012.
+ *
+ * Author: Marcin Pajdzik
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function popup_message_menu() {
+  $items['admin/content/popup-message'] = array(
+    'title' => 'Popup Message',
+    'description' => 'Adds a cookie based, schedulable Popup message.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('popup_message_admin_form'),
+    'access arguments' => array('administer popup message'),
+    'file' => 'popup_message.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_page_build(&$page).
+ */
+function popup_message_page_build(&$page) {
+  $popup_settings = popup_message_get_settings();
+  //Do not show cookie if it is not the scheduled time yet
+  if(strtotime($popup_settings['scheduled_date']) < strtotime('now') && strtotime('now') < strtotime($popup_settings['unscheduled_date'])){
+ // Check Add/Remove domains
+  $domain_allow = true;
+  $domain_option = isset($popup_settings['domains_option']) ? $popup_settings['domains_option'] : 1;
+  if (isset($popup_settings['domains_list'])) {
+    global $base_url;
+    $domains_list = str_replace(array("\r\n", "\r"), "\n", $popup_settings['domains_list']);
+    $domains_list = explode("\n", $domains_list);
+    $domain_match = in_array($base_url, $domains_list);
+    if ($domain_option && $domain_match) {
+      $domain_allow = false;
+    }
+    if (!$domain_option && !$domain_match) {
+      $domain_allow = false;
+    }
+  }
+  // Check exclude paths
+  $path_match = FALSE;
+  if(isset($popup_settings['exclude_paths'])) {
+    $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+    $path_match = drupal_match_path($path, $popup_settings['exclude_paths']);
+  }
+
+  if (isset($popup_settings['eu_only']) && $popup_settings['eu_only']) {
+    $country_code = '';
+    if(module_exists('geoip')) {
+      $country_code = geoip_country_code();
+    } elseif(module_exists('smart_ip')) {
+       $smart_ip_session = smart_ip_session_get('smart_ip');
+       $country_code = isset($smart_ip_session['location']['country_code']) ? $smart_ip_session['location']['country_code'] : NULL;
+    }
+    $geoip_match = false;
+    if ( in_array($country_code, array(NULL, 'BE', 'BG', 'CZ', 'DK', 'DE', 'EE', 'GB', 'IE', 'EL', 'ES', 'FR', 'HR', 'IT', 'CY', 'LV', 'LT', 'LU', 'HU', 'MT', 'NL', 'NO', 'AT', 'PL', 'PT', 'RO', 'SI', 'SK', 'FI', 'SE', 'UK'))) {
+      $geoip_match = true;
+    }
+    if ($country_code == '')
+    {
+      $geoip_match = true;
+    }
+  } else {
+    $geoip_match = true;
+  }
+
+  if (!empty($popup_settings['popup_enabled']) && user_access('display popup message') && $geoip_match && $domain_allow && !$path_match) {
+    global $language;
+    // Array storage for caching full client data.
+    $data = array();
+    if($cache = cache_get('popup_message_client_settings_' . $language->language, 'cache')) {
+      $data = $cache->data;
+    }
+    else {
+      // Initialize some needed popup settings messages.
+      $popup_settings_messages = array(
+        'popup_agree_button_message',
+        'popup_disagree_button_message',
+        'popup_hide_button_message',
+        'popup_find_more_button_message'
+      );
+      foreach ($popup_settings_messages as $key) {
+        if (!isset($popup_settings[$key])) {
+          $popup_settings[$key] = '';
+        }
+      }
+
+      $popup_text_info = str_replace(array("\r", "\n"), '', $popup_settings['popup_info']['value']);
+      $popup_text_agreed = str_replace(array("\r", "\n"), '', $popup_settings['popup_agreed']['value']);
+      $html_info = theme('popup_message_popup_info', array('message' => check_markup($popup_text_info, $popup_settings['popup_info']['format'], FALSE), 'agree_button'=> $popup_settings['popup_agree_button_message'], 'disagree_button' => $popup_settings['popup_disagree_button_message']));
+      $html_agreed = theme('popup_message_popup_agreed', array('message' => check_markup($popup_text_agreed, $popup_settings['popup_agreed']['format'], FALSE),'hide_button'=>$popup_settings['popup_hide_button_message'],'find_more_button'=>$popup_settings['popup_find_more_button_message']));
+      $popup_text_info = str_replace(array("\r", "\n"), '', $popup_settings['popup_info']['value']);
+      $popup_text_agreed = str_replace(array("\r", "\n"), '', $popup_settings['popup_agreed']['value']);
+      $clicking_confirmation = (isset($popup_settings['popup_clicking_confirmation']))? $popup_settings['popup_clicking_confirmation'] : TRUE ;
+      $data['variables'] = array(
+        'popup_enabled' => $popup_settings['popup_enabled'],
+        'popup_agreed_enabled' => $popup_settings['popup_agreed_enabled'],
+        'popup_hide_agreed' => isset($popup_settings['popup_hide_agreed']) ? $popup_settings['popup_hide_agreed'] : FALSE,
+        'popup_clicking_confirmation' => $clicking_confirmation,
+        'popup_html_info' => empty($html_info) ? FALSE : $html_info,
+        'popup_html_agreed' => empty($html_agreed) ? FALSE : $html_agreed,
+        'popup_height' => ($popup_settings['popup_height']) ? (int) $popup_settings['popup_height'] : 'auto',
+        'popup_width' => (drupal_substr($popup_settings['popup_width'], -1) == '%') ? $popup_settings['popup_width'] : (int) $popup_settings['popup_width'],
+        'popup_delay' => (int) ($popup_settings['popup_delay'] * 1000),
+        'popup_link' => url($popup_settings['popup_link']),
+        'popup_link_new_window' => isset($popup_settings['popup_link_new_window']) ? $popup_settings['popup_link_new_window'] : 1,
+        'popup_position' => empty($popup_settings['popup_position']) ? NULL : $popup_settings['popup_position'],
+        'popup_language' => $language->language,
+        'domain' => variable_get('popup_message_domain', ''),
+      );
+      cache_set('popup_message_client_settings_' . $language->language, $data, 'cache', CACHE_TEMPORARY);
+     }
+    drupal_add_css($data['css'], array('type' => 'inline'));
+    drupal_add_js(array('popup_message' => $data['variables']), array('type' => 'setting', 'scope' => 'footer'));
+    drupal_add_css(drupal_get_path('module', 'popup_message') . '/css/popup_message.css');
+    drupal_add_js(drupal_get_path('module', 'popup_message') . '/js/popup_message.js', array('type' => 'file', 'scope' => 'footer'));
+  }
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function popup_message_permission() {
+  return array(
+    'administer popup message' => array(
+      'title' => 'Administer Popup Message'
+    ),
+    'display popup message' => array(
+      'title' => 'Display Popup Message'
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function popup_message_theme() {
+  $path = drupal_get_path('module', 'popup_message') . '/theme';
+  return array(
+    'popup_message_popup_info' => array(
+      'template' => 'popup-message-popup-info',
+      'variables' => array('message' => NULL, 'agree_button' => NULL, 'disagree_button' => NULL),
+      'path' => $path,
+    ),
+    'popup_message_popup_agreed' => array(
+      'template' => 'popup-message-popup-agreed',
+      'variables' => array('message' => NULL, 'hide_button' => NULL, 'find_more_button' => NULL),
+      'path' => $path,
+    ),
+  );
+}
+
+/**
+ *
+ * Retrieves settings from the database for a current language.
+ *
+ * @global type $language
+ * @param type $setting
+ * @return type
+ */
+
+function popup_message_get_settings($setting = 'all') {
+  global $language;
+  $popup_settings = variable_get('popup_message_' . $language->language, array());
+
+  if ($setting == 'all') {
+    return $popup_settings;
+  }
+
+  if (isset($popup_settings[$setting])) {
+    return $popup_settings[$setting];
+  } else {
+    return NULL;
+  }
+}
+
+/*
+*  Implements hook_cron()
+*/
+function popup_message_cron() {
+  $popup_settings = popup_message_get_settings();
+
+  //Set the variable for the first time
+  if(!variable_get('popup_message_scheduled_time')){variable_set('popup_message_scheduled_time', 'out');}
+
+  //Clear cache if it is scheduled time so that page_build hook can run and show the popup
+  if(strtotime($popup_settings['scheduled_date']) < strtotime('now') && strtotime('now') < strtotime($popup_settings['unscheduled_date'])){
+  	if(variable_get('popup_message_scheduled_time') == 'out'){
+  		drupal_flush_all_caches();
+  		variable_set('popup_message_scheduled_time', 'in');
+  	}
+  }else{//Clear cache if it is unschedule time so popup can be removed
+  	if(variable_get('popup_message_scheduled_time') == 'in'){
+  		drupal_flush_all_caches();
+  		variable_set('popup_message_scheduled_time', 'out');
+  	}
+  }
+}

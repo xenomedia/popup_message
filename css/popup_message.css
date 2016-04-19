@@ -1,0 +1,22 @@
+#sliding-popup {
+  background: rgba(0, 0, 0, 0.8) none repeat scroll 0 0;
+  color:#fff;
+  display: block;
+  margin: 0;
+  padding: 0 2em 1em 2em;
+  right: 0;
+  width: 100%;
+  z-index: 99999;
+}
+
+.sliding-popup-bottom {
+  position: fixed;
+}
+
+.sliding-popup-top {
+  position: relative;
+}
+
+.find-more-button {
+    margin-right: 10px;
+}

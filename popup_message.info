@@ -1,0 +1,4 @@
+name = Popup Message
+description = This module adds a Cookie based, Schedulable Popup Message to your website.
+core = 7.x
+configure = admin/config/system/popup-message

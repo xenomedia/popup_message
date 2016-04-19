@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Installation file.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function popup_message_install() {
+  $popup_settings = array(
+    'popup_info' => array(
+      'value' => '<h2>Welcome to our website!</h2>',
+      'format' => filter_default_format(),
+    ),
+    'popup_agreed' => array(
+      'value' => '<h2>Thank you for visiting!</h2>',
+      'format' => filter_default_format(),
+    ),
+  );
+  global $language;
+  $lang = ($language->language) ? $language->language : 'en';
+  variable_set('popup_message_' . $lang, $popup_settings);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function popup_message_uninstall() {
+  if(module_exists('locale')) {
+    $langs = locale_language_list();
+    foreach($langs as $key => $lang) {
+      variable_del('popup_message_' . $key);
+    }
+  } else {
+    $lang = ($language->language) ? $language->language : 'en';
+    variable_del('popup_message_' . $lang);
+  }
+  cache_clear_all('variables', 'cache');
+}
