@@ -12,36 +12,28 @@
           } 
           var status = Drupal.popup_message.getCurrentStatus();
           var clicking_confirms = Drupal.settings.popup_message.popup_clicking_confirmation;
-          var agreed_enabled = Drupal.settings.popup_message.popup_agreed_enabled;
-          var popup_hide_agreed = Drupal.settings.popup_message.popup_hide_agreed;
           if (status == 0) {
             var next_status = 1;
             if (clicking_confirms) {
               $('a, input[type=submit]').bind('click.popup_message', function(){
-                if(!agreed_enabled) {
                   Drupal.popup_message.setStatus(1);
                   next_status = 2;
-                }
                 Drupal.popup_message.changeStatus(next_status);
               });
             }
 
             $('.agree-button').click(function(){
-              if(!agreed_enabled) {
                 Drupal.popup_message.setStatus(1);
                 next_status = 2;
-              }
               Drupal.popup_message.changeStatus(next_status);
             });
 
             Drupal.popup_message.createPopup(Drupal.settings.popup_message.popup_html_info);
           } else if(status == 1) {
             Drupal.popup_message.createPopup(Drupal.settings.popup_message.popup_html_agreed);
-            if (popup_hide_agreed) {
               $('a, input[type=submit]').bind('click.popup_message_hideagreed', function(){
                 Drupal.popup_message.changeStatus(2);
               });
-            }
 
           } else {
             return;
@@ -82,21 +74,20 @@
 
   Drupal.popup_message.attachEvents = function() {
 	var clicking_confirms = Drupal.settings.popup_message.popup_clicking_confirmation;
-    var agreed_enabled = Drupal.settings.popup_message.popup_agreed_enabled;
     $('.find-more-button').click(function(){
       if (Drupal.settings.popup_message.popup_link_new_window) {
+      	Drupal.popup_message.changeStatus(2);
         window.open(Drupal.settings.popup_message.popup_link);
       }
       else{
+      	Drupal.popup_message.changeStatus(2);
         window.location.href = Drupal.settings.popup_message.popup_link;
       }
     });
     $('.agree-button').click(function(){
       var next_status = 1;
-      if(!agreed_enabled) {
         Drupal.popup_message.setStatus(1);
         next_status = 2;
-      }
       if (clicking_confirms) {
         $('a, input[type=submit]').unbind('click.popup_message');
       }
