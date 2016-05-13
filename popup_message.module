@@ -116,8 +116,11 @@ function popup_message_page_build(&$page) {
         'domain' => variable_get('popup_message_domain', ''),
       );
       cache_set('popup_message_client_settings_' . $language->language, $data, 'cache', CACHE_TEMPORARY);
-     }
-    drupal_add_css($data['css'], array('type' => 'inline'));
+    }
+    // Ensure that data key exists
+    if(array_key_exists('css', $data)){
+      drupal_add_css($data['css'], array('type' => 'inline'));
+    }
     drupal_add_js(array('popup_message' => $data['variables']), array('type' => 'setting', 'scope' => 'footer'));
     drupal_add_css(drupal_get_path('module', 'popup_message') . '/css/popup_message.css');
     drupal_add_js(drupal_get_path('module', 'popup_message') . '/js/popup_message.js', array('type' => 'file', 'scope' => 'footer'));
