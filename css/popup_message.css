@@ -1,6 +1,6 @@
 #sliding-popup {
   background: rgba(0, 0, 0, 0.8) none repeat scroll 0 0;
-  color:#fff;
+  color: #fff;
   display: block;
   margin: 0;
   padding: 0 2em 1em 2em;
@@ -18,5 +18,5 @@
 }
 
 .find-more-button {
-    margin-right: 10px;
+  margin-right: 10px;
 }

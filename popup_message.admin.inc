@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * This file provides administration form for the module.
@@ -21,7 +22,7 @@ function popup_message_admin_form($form_state) {
     '#collapsed' => FALSE,
   );
 
-  $form['summary']['popup_message_' . $ln] = array (
+  $form['summary']['popup_message_' . $ln] = array(
     '#type'  => 'item',
     '#tree'   => TRUE,
   );
@@ -71,7 +72,7 @@ function popup_message_admin_form($form_state) {
     '#collapsed' => FALSE,
   );
 
-  $form['message']['popup_message_' . $ln] = array (
+  $form['message']['popup_message_' . $ln] = array(
     '#type'  => 'item',
     '#tree'   => TRUE,
   );
@@ -108,7 +109,7 @@ function popup_message_admin_form($form_state) {
     '#collapsed' => TRUE,
   );
 
-  $form['attributes']['popup_message_' . $ln] = array (
+  $form['attributes']['popup_message_' . $ln] = array(
     '#type'  => 'item',
     '#tree'   => TRUE,
   );
@@ -142,7 +143,7 @@ function popup_message_admin_form($form_state) {
     '#required' => TRUE,
   );
 
-  if (module_exists('geoip') || module_exists('smart_ip')){
+  if (module_exists('geoip') || module_exists('smart_ip')) {
     $form['attributes']['popup_message_' . $ln]['eu_only'] = array(
       '#type' => 'checkbox',
       '#title' => t('Only display popup in EU countries (using the <a href="http://drupal.org/project/geoip">geoip</a> module or the <a href="http://drupal.org/project/smart_ip">smart_ip</a> module)'),
@@ -158,12 +159,12 @@ function popup_message_admin_form($form_state) {
     '#collapsed' => TRUE,
   );
 
-  $form['advanced']['popup_message_' . $ln] = array (
+  $form['advanced']['popup_message_' . $ln] = array(
     '#type'  => 'item',
     '#tree'   => TRUE,
   );
 
-  // Adding option to add/remove popup on specified domains
+  // Adding option to add/remove popup on specified domains.
   $exclude_domains_option_active = array(
     0 => t('Add'),
     1 => t('Remove'),
@@ -186,7 +187,11 @@ function popup_message_admin_form($form_state) {
     '#type' => 'textarea',
     '#title' => t('Exclude paths'),
     '#default_value' => isset($popup_settings['exclude_paths']) ? $popup_settings['exclude_paths'] : '',
-    '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
+    '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
+      '%blog' => 'blog',
+      '%blog-wildcard' => 'blog/*',
+      '%front' => '<front>',
+    )),
   );
 
   $form['advanced']['popup_message_domain'] = array(
@@ -205,14 +210,15 @@ function popup_message_admin_form($form_state) {
  */
 function popup_message_admin_form_validate($form, &$form_state) {
   global $language;
-  $ln = $language-> language;
+  $ln = $language->language;
 
   if (!preg_match('/^[1-9][0-9]{0,4}$/', $form_state['values']['popup_message_' . $ln]['popup_delay'])) {
     form_set_error('popup_message_' . $ln . '][popup_delay', t('Delay must be an integer value.'));
   }
 
   $popup_link = $form_state['values']['popup_message_' . $ln]['popup_link'];
-  //if the link contains a fragment then check if it validates then rewrite link with full url
+  // If the link contains a fragment then check if it validates then rewrite
+  // link with full url.
   if ((strpos($popup_link, '#') !== FALSE) && (strpos($popup_link, 'http') === FALSE)) {
     $fragment = explode('#', $popup_link);
     $popup_link = url($fragment[0], array('fragment' => $fragment[1], 'absolute' => TRUE));

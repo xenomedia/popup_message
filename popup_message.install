@@ -28,12 +28,13 @@ function popup_message_install() {
  * Implements hook_uninstall().
  */
 function popup_message_uninstall() {
-  if(module_exists('locale')) {
+  if (module_exists('locale')) {
     $langs = locale_language_list();
-    foreach($langs as $key => $lang) {
+    foreach ($langs as $key => $lang) {
       variable_del('popup_message_' . $key);
     }
-  } else {
+  }
+  else {
     $lang = ($language->language) ? $language->language : 'en';
     variable_del('popup_message_' . $lang);
   }

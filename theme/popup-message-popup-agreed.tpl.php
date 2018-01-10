@@ -1,8 +1,8 @@
 <?php
+
 /**
  * @file
- * This is a template file for a pop-up informing a user that he has already
- * agreed to cookies.
+ * Template for a pop-up informing they have already agreed to cookies.
  *
  * When overriding this template it is important to note that jQuery will use
  * the following classes to assign actions to buttons:
