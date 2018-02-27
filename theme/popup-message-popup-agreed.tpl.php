@@ -16,12 +16,12 @@
  * - $find_more_button: Contains find more button title
  */
 ?>
-<div class="popup-content agreed">
-  <div id="popup-text">
+<div class="popup-message-content agreed">
+  <div id="popup-message-text">
     <?php print $message ?>
   </div>
-  <div id="popup-buttons">
-    <button type="button" class="hide-popup-button"><?php print $hide_button; ?></button>
-    <button type="button" class="find-more-button" ><?php print $find_more_button; ?></button>
+  <div id="popup-message-buttons">
+    <button type="button" class="popup-message-hide-popup-button"><?php print $hide_button; ?></button>
+    <button type="button" class="popup-message-find-more-button" ><?php print $find_more_button; ?></button>
   </div>
 </div>

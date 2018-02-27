@@ -1,4 +1,4 @@
-#sliding-popup {
+#popup-message {
   background: rgba(0, 0, 0, 0.8) none repeat scroll 0 0;
   color: #fff;
   display: block;
@@ -9,14 +9,14 @@
   z-index: 99999;
 }
 
-.sliding-popup-bottom {
+.popup-message-bottom {
   position: fixed;
 }
 
-.sliding-popup-top {
+.popup-message-top {
   position: relative;
 }
 
-.find-more-button {
+.popup-message-find-more-button {
   margin-right: 10px;
 }
