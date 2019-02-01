@@ -16,12 +16,12 @@
  * - $disagree_button: Contains disagree button title
  */
 ?>
-<div class="popup-message-content info">
-  <div id="popup-message-text">
+<div class="popup-content info">
+  <div id="popup-text">
     <?php print $message ?>
   </div>
-  <div id="popup-message-buttons">
-    <button type="button" class="popup-message-agree-button"><?php print $agree_button; ?></button>
-    <button type="button" class="popup-message-find-more-button"><?php print $disagree_button; ?></button>
+  <div id="popup-buttons">
+    <button type="button" class="agree-button"><?php print $agree_button; ?></button>
+    <button type="button" class="find-more-button"><?php print $disagree_button; ?></button>
   </div>
 </div>

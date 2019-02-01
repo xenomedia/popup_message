@@ -228,7 +228,7 @@ function popup_message_theme() {
  */
 function popup_message_get_settings($setting = 'all') {
   global $language;
-  $popup_settings = variable_get('popup_message_' . $language->language, array());
+  $popup_settings = variable_get('popup_message_en', array());
 
   if ($setting == 'all') {
     return $popup_settings;

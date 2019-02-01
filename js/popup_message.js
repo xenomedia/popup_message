@@ -1,7 +1,7 @@
 (function ($) {
   Drupal.behaviors.popup_message_popup = {
     attach: function(context, settings) {
-      $('body').not('.popup-message-processed').addClass('popup-message-processed').each(function() {
+      $('body').not('.sliding-popup-processed').addClass('sliding-popup-processed').each(function() {
         try {
           var enabled = Drupal.settings.popup_message.popup_enabled;
           if(!enabled) {
@@ -22,7 +22,7 @@
               });
             }
 
-            $('.popup-message-agree-button').click(function(){
+            $('.agree-button').click(function(){
                 Drupal.popup_message.setStatus(1);
                 next_status = 2;
               Drupal.popup_message.changeStatus(next_status);
@@ -50,7 +50,7 @@
 
   Drupal.popup_message.createPopup = function(html) {
     var popup = $(html)
-      .attr({"id": "popup-message"})
+      .attr({"id": "sliding-popup"})
       .height(Drupal.settings.popup_message.popup_height)
       //.width(Drupal.settings.popup_message.popup_width)
       .hide();
@@ -58,14 +58,14 @@
       popup.prependTo("body");
       var height = popup.height();
       popup.show()
-        .attr({"class": "popup-message-top"})
+        .attr({"class": "sliding-popup-top"})
         .css({"margin-top": -1 * height})
         .animate({"margin-top": 0}, Drupal.settings.popup_message.popup_delay);
     } else {
       popup.appendTo("body");
       height = popup.height();
       popup.show()
-        .attr({"class": "popup-message-bottom"})
+        .attr({"class": "sliding-popup-bottom"})
         .css({"bottom": -1 * height})
         .animate({bottom: 0}, Drupal.settings.popup_message.popup_delay)
     }
@@ -73,18 +73,18 @@
   }
 
   Drupal.popup_message.attachEvents = function() {
-    var clicking_confirms = Drupal.settings.popup_message.popup_clicking_confirmation;
-    $('.popup-message-find-more-button').click(function(){
+	var clicking_confirms = Drupal.settings.popup_message.popup_clicking_confirmation;
+    $('.find-more-button').click(function(){
       if (Drupal.settings.popup_message.popup_link_new_window) {
-        Drupal.popup_message.changeStatus(2);
+      	Drupal.popup_message.changeStatus(2);
         window.open(Drupal.settings.popup_message.popup_link);
       }
       else{
-        Drupal.popup_message.changeStatus(2);
+      	Drupal.popup_message.changeStatus(2);
         window.location.href = Drupal.settings.popup_message.popup_link;
       }
     });
-    $('.popup-message-agree-button').click(function(){
+    $('.agree-button').click(function(){
       var next_status = 1;
         Drupal.popup_message.setStatus(1);
         next_status = 2;
@@ -93,38 +93,38 @@
       }
       Drupal.popup_message.changeStatus(next_status);
     });
-    $('.popup-message-hide-popup-button').click(function(){
+    $('.hide-popup-button').click(function(){
       Drupal.popup_message.changeStatus(2);
     });
   }
 
   Drupal.popup_message.getCurrentStatus = function() {
-  name = 'popup-message-cookie-agreed';
-  value = Drupal.popup_message.getCookie(name);
-  return value;
+	name = 'cookie-agreed';
+	value = Drupal.popup_message.getCookie(name);
+	return value;
   }
 
   Drupal.popup_message.changeStatus = function(value) {
     var status = Drupal.popup_message.getCurrentStatus();
     if (status == value) return;
     if(Drupal.settings.popup_message.popup_position) {
-      $(".popup-message-top").animate({top: $("#popup-message").height() * -1}, Drupal.settings.popup_message.popup_delay, function () {
+      $(".sliding-popup-top").animate({top: $("#sliding-popup").height() * -1}, Drupal.settings.popup_message.popup_delay, function () {
         if(status == 0) {
-          $("#popup-message").html(Drupal.settings.popup_message.popup_html_agreed).animate({top: 0}, Drupal.settings.popup_message.popup_delay);
+          $("#sliding-popup").html(Drupal.settings.popup_message.popup_html_agreed).animate({top: 0}, Drupal.settings.popup_message.popup_delay);
           Drupal.popup_message.attachEvents();
         }
         if(status == 1) {
-          $("#popup-message").remove();
+          $("#sliding-popup").remove();
         }
       })
     } else {
-      $(".popup-message-bottom").animate({bottom: $("#popup-message").height() * -1}, Drupal.settings.popup_message.popup_delay, function () {
+      $(".sliding-popup-bottom").animate({bottom: $("#sliding-popup").height() * -1}, Drupal.settings.popup_message.popup_delay, function () {
         if(status == 0) {
-          $("#popup-message").html(Drupal.settings.popup_message.popup_html_agreed).animate({bottom: 0}, Drupal.settings.popup_message.popup_delay)
+          $("#sliding-popup").html(Drupal.settings.popup_message.popup_html_agreed).animate({bottom: 0}, Drupal.settings.popup_message.popup_delay)
           Drupal.popup_message.attachEvents();
         }
         if(status == 1) {
-          $("#popup-message").remove();
+          $("#sliding-popup").remove();
         }
       ;})
     }
@@ -134,7 +134,7 @@
   Drupal.popup_message.setStatus = function(status) {
     var date = new Date();
     date.setDate(date.getDate() + 100);
-    var cookie = "popup-message-cookie-agreed=" + status + ";expires=" + date.toUTCString() + ";path=" + Drupal.settings.basePath;
+    var cookie = "cookie-agreed=" + status + ";expires=" + date.toUTCString() + ";path=" + Drupal.settings.basePath;
     if(Drupal.settings.popup_message.domain) {
       cookie += ";domain="+Drupal.settings.popup_message.domain;
     }
@@ -148,6 +148,7 @@
     }
     return false;
   }
+
 
   /**
    * Verbatim copy of Drupal.comment.getCookie().
